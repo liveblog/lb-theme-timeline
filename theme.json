@@ -1,0 +1,25 @@
+{
+    "label": "Timeline Theme",
+    "name": "timeline",
+    "version": "1.0.1",
+    "author": "Vlad Nicoara <vlad.nicoara@sourcefabric.org>",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:liveblog/lb-theme-timeline.git"
+    },
+    "license": "AGPL-3.0",
+    "extends": "classic",
+    "devStyles": [
+        "styles/embed.css"
+    ],
+    "styles": [
+        "dist/styles.min.css"
+    ],
+    "devScripts": [
+        "main.js"
+    ],
+    "scripts": [
+        "dist/scripts.min.js"
+    ],
+    "options": []
+}

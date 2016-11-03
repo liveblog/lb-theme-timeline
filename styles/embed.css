@@ -1,0 +1,140 @@
+body {
+    font-family: "Roboto", helvetica, arial, sans-serif;
+    color: #777;
+}
+
+body a {
+    color: #454545 !important;
+    text-decoration: none;
+}
+
+body a:hover {
+    color: #b40031 !important;
+}
+
+body h1 {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 110%;
+    color: #454545;
+}
+
+body .header-bar {
+    padding: 11px 0 0 11px;
+}
+
+body .header-bar__logo {
+    display: none;
+}
+
+body .sorting-bar__order--active {
+    border-bottom: 2px solid #b40031;
+    color: #b40031;
+}
+
+body .sorting-bar__order:hover {
+    color: #b40031;
+    border-bottom: 2px solid transparent;
+}
+
+body .lb-timeline {
+    margin-top: 0px;
+    border: none;
+}
+
+body article {
+    font-size: 15px;
+    line-height: 1.42857143;
+}
+
+body article blockquote {
+    margin: 30px 0 0 0;
+}
+
+body article blockquote ul {
+    list-style: none;
+}
+
+body article blockquote p {
+    position: relative;
+    display: inline-block;
+    padding: 0px 30px;
+}
+
+body article blockquote p:before {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 2em;
+    position: absolute;
+    left: 0px;
+    content: "«";
+    top: -4px;
+}
+
+body article blockquote p:after {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 2em;
+    position: absolute;
+    right: 0px;
+    content: "»";
+    top: -4px;
+}
+
+body .lb-post {
+    padding: 20px 10px;
+    border-bottom: 1px solid #ececec;
+}
+
+body .lb-author {
+    margin-bottom: 15px;
+}
+
+body .lb-author__name, body .lb-author__date {
+    color: #454545;
+    font-weight: 500;
+}
+
+body .item--embed {
+    margin: 15px 0px;
+}
+
+body .item--embed__title, body .item--embed__title a {
+    font-family: "Roboto", helvetica, arial, sans-serif;
+    color: #454545;
+    margin-bottom: 0px;
+}
+
+body strong {
+    font-weight: 500;
+}
+
+/* alert */
+body .alert {
+    margin: 10px 10px 20px;
+    color: #fff;
+    background-color: #34b77a;
+    border: 1px solid #1eb06c;
+    padding: 15px 35px 15px 15px;
+    position: relative;
+    border-radius: 2px;
+    font-weight: 300;
+}
+body .alert a {
+    color: #fff !important;
+}
+body .alert-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1;
+    color: #fff !important;
+    border: none;
+    opacity: 0.4;
+}
+body .alert-close:hover {
+    cursor: pointer;
+    opacity: 0.9;
+}
