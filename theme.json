@@ -10,15 +10,19 @@
     "license": "AGPL-3.0",
     "extends": "classic",
     "devStyles": [
-        "styles/embed.css"
+        "styles/embed.css",
+        "https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css"
     ],
     "styles": [
+        "https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css",
         "dist/styles.min.css"
     ],
     "devScripts": [
+        "https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js",
         "main.js"
     ],
     "scripts": [
+        "https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js",
         "dist/scripts.min.js"
     ],
     "options": []

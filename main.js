@@ -1,8 +1,8 @@
 (function(angular) {
     'use strict';
 
-    TimelineCtrl.$inject = ['$interval', 'PagesManager', 'blogs', 'config', '$anchorScroll', '$timeout', 'Permalink', 'transformBlog', 'gettext'];
-    function TimelineCtrl($interval, PagesManager, blogsService, config, $anchorScroll, $timeout, Permalink, transformBlog, gettext) {
+    TimelineCtrl.$inject = ['$interval', 'PagesManager', 'blogs', 'config', '$anchorScroll', '$timeout', 'Permalink', 'transformBlog', 'gettext', '$window'];
+    function TimelineCtrl($interval, PagesManager, blogsService, config, $anchorScroll, $timeout, Permalink, transformBlog, gettext, $window) {
 
         var POSTS_PER_PAGE = config.settings.postsPerPage;
         var STICKY_POSTS_PER_PAGE = 100;
@@ -36,6 +36,31 @@
             });
         }
 
+        function createTimelineEvent(post) {
+            var html = '';
+            angular.forEach(post.items, function(item) {
+                if (html == '') {
+                    html += item.text;
+                } else {
+                    html += '<br />' + item.text;
+                }
+            });
+            var event = {
+                "start_date": {
+                    "month": moment(post.published_date).format('MM'),
+                    "day": moment(post.published_date).format('D'),
+                    "year": moment(post.published_date).format('YYYY'),
+                    "hour": moment(post.published_date).format('H'),
+                    "minute": moment(post.published_date).format('m')
+                },
+                "display_date": moment(post.published_date).format(config.settings.datetimeFormat),
+                "text": {
+                    "text": html
+                }
+            }
+            return event;
+        }
+
         // define view model
         angular.extend(vm, {
             templateDir: config.assets_root,
@@ -65,10 +90,26 @@
                 });
             },
             fetchNewPage: function() {
+                console.log(config.settings);
                 vm.loading = true;
                 return vm.pagesManager.fetchNewPage().then(function(data){
+                    var timelineEvents = {
+                        events: []
+                    };
                     vm.loading = false;
                     vm.finished = data._meta.total <= data._meta.max_results * data._meta.page;
+                    
+                    angular.forEach(data._items, function(post) {
+                        timelineEvents.events.push(createTimelineEvent(post));
+                    })
+                    vm.timeline = new $window.TL.Timeline('liveblog-timeline', timelineEvents);
+
+                    //get the first sticky page only once
+                    vm.stickyPagesManager.fetchNewPage().then(function(data){
+                        angular.forEach(data._items, function(post) {
+                            vm.timeline.add(createTimelineEvent(post));
+                        })
+                    });
                     // TODO: notify updates
                 });
             },
@@ -108,8 +149,7 @@
             stickyPagesManager: stickyPagesManager,
             stickyPermalink: stickyPermalink
         });
-        //get the first sticky page only once
-        vm.stickyPagesManager.fetchNewPage();
+
         // retrieve regular first page
         vm.fetchNewPage()
         // retrieve updates periodically
