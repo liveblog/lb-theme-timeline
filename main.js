@@ -11,7 +11,7 @@
         var UPDATE_MANUALLY = config.settings.loadNewPostsManually;
         var UPDATE_STICKY_MANUALLY = typeof config.settings.loadNewStickyPostsManually === 
         'boolean' ? config.settings.loadNewStickyPostsManually : config.settings.loadNewPostsManually;
-        var UPDATE_EVERY = 10*1000; // retrieve update interval in millisecond
+        var UPDATE_EVERY = 3*1000; // retrieve update interval in millisecond
         var vm = this;
         var pagesManager = new PagesManager(POSTS_PER_PAGE, DEFAULT_ORDER, false),
             permalink = new Permalink(pagesManager, PERMALINK_DELIMITER);
@@ -21,8 +21,45 @@
 
         function retrieveUpdate() {
             return vm.pagesManager.retrieveUpdate().then(function(data) {
-                vm.newPosts = vm.newPosts.concat(vm.pagesManager.processUpdates(data, !UPDATE_MANUALLY));
-                vm.newStickyPosts = vm.newStickyPosts.concat(vm.stickyPagesManager.processUpdates(data, !UPDATE_STICKY_MANUALLY));
+                vm.pagesManager.updateLatestDates(data._items);
+                if (vm.timeline) {
+                    //handle posts one by one
+                    angular.forEach(data._items, function(post) {
+                        //check if we have the post in the timeline
+                        var timelineId = false;
+                        angular.forEach(vm.timeline.config.events, function(event) {
+                            if (post._id === event._id) {
+                                timelineId = event.unique_id;
+                            }
+                        });
+                        if (timelineId) {
+                            //post exists in timeline
+                            if (post.post_status !== 'open' || post.deleted) {
+                                //pust has ben removed or status has been changed
+                                vm.timeline.removeId(timelineId);
+                            } else {
+                                //@TODO check for sticky status only change?
+                                //for now we'll consider it an edit
+                                vm.timeline.removeId(timelineId);
+                                vm.timeline.add(createTimelineEvent(post));
+                            }
+                        } else {
+                            if (post.post_status === 'open') {
+                                //only add published items
+                                vm.timeline.add(createTimelineEvent(post));
+                            }
+                        }
+                    });
+                } else {
+                    //create timeline with array of published posts
+                    var pubPosts = [];
+                    angular.forEach(data._items, function(post) {
+                        if (post.post_status === 'open' && !post.deleted) {
+                            pubPosts.push(post);
+                        }
+                    });
+                    createTimeline(pubPosts);
+                }
             });
         }
 
@@ -53,12 +90,35 @@
                     "hour": moment(post.published_date).format('H'),
                     "minute": moment(post.published_date).format('m')
                 },
+                "_id": post._id,
                 "display_date": moment(post.published_date).format(config.settings.datetimeFormat),
                 "text": {
                     "text": html
                 }
             }
             return event;
+        }
+
+        function createTimeline(posts) {
+            if (vm.timeline) {
+                //timeline already instantiated; we add events
+                angular.forEach(posts, function(post) {
+                    vm.timeline.add(createTimelineEvent(post));
+                });
+            } else {
+                //check if we have any posts
+                if (posts.length) {
+                    var timelineEvents = {
+                        events: []
+                    }
+                    angular.forEach(posts, function(post) {
+                        timelineEvents.events.push(createTimelineEvent(post));
+                    })
+                    vm.timeline = new $window.TL.Timeline('liveblog-timeline', timelineEvents);
+                } else {
+                    //can't instantiate timelinejs with no events
+                }
+            }
         }
 
         // define view model
@@ -90,27 +150,18 @@
                 });
             },
             fetchNewPage: function() {
-                console.log(config.settings);
                 vm.loading = true;
                 return vm.pagesManager.fetchNewPage().then(function(data){
-                    var timelineEvents = {
-                        events: []
-                    };
+                
                     vm.loading = false;
                     vm.finished = data._meta.total <= data._meta.max_results * data._meta.page;
-                    
-                    angular.forEach(data._items, function(post) {
-                        timelineEvents.events.push(createTimelineEvent(post));
-                    })
-                    vm.timeline = new $window.TL.Timeline('liveblog-timeline', timelineEvents);
+                    createTimeline(data._items);
 
                     //get the first sticky page only once
                     vm.stickyPagesManager.fetchNewPage().then(function(data){
-                        angular.forEach(data._items, function(post) {
-                            vm.timeline.add(createTimelineEvent(post));
-                        })
+                        createTimeline(data._items);
+                        
                     });
-                    // TODO: notify updates
                 });
             },
             permalinkScroll: function() {
