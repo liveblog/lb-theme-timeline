@@ -115,6 +115,7 @@
                         timelineEvents.events.push(createTimelineEvent(post));
                     })
                     vm.timeline = new $window.TL.Timeline('liveblog-timeline', timelineEvents);
+                    vm.timelineOn = true;
                 } else {
                     //can't instantiate timelinejs with no events
                 }
@@ -126,6 +127,7 @@
             templateDir: config.assets_root,
             blog: transformBlog(config.blog),
             loading: true,
+            timelineOn: false,
             finished: false,
             highlightsOnly: false,
             settings: config.settings,
@@ -152,15 +154,13 @@
             fetchNewPage: function() {
                 vm.loading = true;
                 return vm.pagesManager.fetchNewPage().then(function(data){
-                
-                    vm.loading = false;
                     vm.finished = data._meta.total <= data._meta.max_results * data._meta.page;
                     createTimeline(data._items);
 
                     //get the first sticky page only once
-                    vm.stickyPagesManager.fetchNewPage().then(function(data){
+                    vm.stickyPagesManager.fetchNewPage().then(function(data) {
+                        vm.loading = false;
                         createTimeline(data._items);
-                        
                     });
                 });
             },
