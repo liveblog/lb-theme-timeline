@@ -138,3 +138,8 @@ body .alert-close:hover {
     cursor: pointer;
     opacity: 0.9;
 }
+
+.tl-timeline blockquote {
+    font-size: inherit!important;
+    line-height: inherit!important;
+}

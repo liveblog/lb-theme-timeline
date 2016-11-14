@@ -74,14 +74,21 @@
         }
 
         function createTimelineEvent(post) {
-            var html = '';
+            var html = '', mediaUrl = '';
             angular.forEach(post.items, function(item) {
-                if (html == '') {
-                    html += item.text;
+
+                // use the first image of embed item as the 'media' for the slide
+                if (!mediaUrl && (item.item_type === 'image' || item.item_type === 'embed')) {
+                    mediaUrl = '<blockquote>' + item.text + '</blockquote>';
                 } else {
-                    html += '<br />' + item.text;
+                    if (html == '') {
+                        html += item.text;
+                    } else {
+                        html += '<br />' + item.text;
+                    }
                 }
             });
+            
             var event = {
                 "start_date": {
                     "month": moment(post.published_date).format('MM'),
@@ -94,6 +101,11 @@
                 "display_date": moment(post.published_date).format(config.settings.datetimeFormat),
                 "text": {
                     "text": html
+                }
+            }
+            if (mediaUrl) {
+                event["media"] = {
+                    "url": mediaUrl
                 }
             }
             return event;
